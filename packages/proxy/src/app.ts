@@ -37,10 +37,10 @@ app.use(helmet.xssFilter());
 
 // -- endpoints
 
-if (!config.env.startsWith('prod')) {
-  logger.info('+ Enabling cors');
-  app.use(cors());
-}
+logger.info(`+ Restricting cors to ${config.hostname}`);
+app.use(cors({
+  origin: `https://${config.hostname}`
+}));
 app.use('/', express.static('static'));
 
 if (config.enableJavaScript) {

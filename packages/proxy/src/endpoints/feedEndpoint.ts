@@ -5,6 +5,7 @@ import iconv from 'iconv-lite';
 import {FeedParserOptions, FeedParserResult, OutputType, SimpleFeedResult} from '@rss-proxy/core';
 import logger from '../logger';
 import {FeedParserError, feedService, GetResponse} from '../services/feedService';
+import {authService} from '../services/authService';
 
 export const feedEndpoint = new class FeedEndpoint {
   private static returnErrorFeed(url: string, message: string, options: FeedParserOptions, response: Response) {
@@ -29,7 +30,7 @@ export const feedEndpoint = new class FeedEndpoint {
 
   register(app: Express) {
 
-    app.get('/api/feed/live', cors(), (request: Request, response: Response) => {
+    app.get('/api/feed/live', authService.auth(), cors(), (request: Request, response: Response) => {
       try {
         const url = request.query.url as string;
 
@@ -48,7 +49,7 @@ export const feedEndpoint = new class FeedEndpoint {
       }
     });
 
-    app.get('/api/feed', cors(), (request: Request, response: Response) => {
+    app.get('/api/feed', authService.auth(), cors(), (request: Request, response: Response) => {
       const url = request.query.url as string;
       try {
         const options = feedService.toOptions(request);

@@ -33,6 +33,10 @@ interface ArticleCandidate {
 })
 export class PlaygroundComponent implements OnInit {
   footer: { visible: boolean; message: string };
+  public rememberedParams = {
+    url: '',
+    js: false
+  };
 
   constructor(private httpClient: HttpClient,
               private sanitizer: DomSanitizer,
@@ -49,7 +53,9 @@ export class PlaygroundComponent implements OnInit {
   feedData = '';
   rules: Array<ArticleRule>;
   currentRule: ArticleRule;
-  url = 'https://www.heise.de';
+  url: string;
+  apiKey = 'demo';
+  dirty = false;
   showViz = 'viz';
   hasResults = false;
   iframeLoaded = false;
@@ -133,7 +139,7 @@ export class PlaygroundComponent implements OnInit {
   public resetAll() {
     this.options = {
       o: OutputType.ATOM,
-      c: ContentType.NONE,
+      c: ContentType.RAW,
       xq: this.excludeItemsThatContainTexts,
     };
     this.html = '';
@@ -142,7 +148,7 @@ export class PlaygroundComponent implements OnInit {
     this.feeds = [];
     this.currentRule = null;
     this.logs = [];
-    // this.url = null;
+    this.url = '';
     this.rules = null;
     this.feedData = '';
     if (this.proxyUrl) {
@@ -154,6 +160,7 @@ export class PlaygroundComponent implements OnInit {
 
   public resetErrors() {
     this.error = null;
+    this.dirty = false;
   }
 
   public getBuildDate() {
@@ -161,9 +168,10 @@ export class PlaygroundComponent implements OnInit {
     return `${date.getUTCDate()}-${date.getUTCMonth()}-${date.getUTCFullYear()}`;
   }
 
-  public parseFromHistoryUrl(url: string) {
+  public assignFromHistoryUrl(url: string) {
     this.url = url;
-    return this.parseFromUrl();
+    this.checkDirtyState();
+    this.changeDetectorRef.detectChanges();
   }
 
   public isCurrentRule(rule: ArticleRule): boolean {
@@ -418,5 +426,11 @@ export class PlaygroundComponent implements OnInit {
       this.feedService.fromHTML(patchedHtml, this.options, url).subscribe(this.handleParserResponse(), console.error);
       this.prepareIframe(patchedHtml );
     });
+  }
+
+  public checkDirtyState(): void {
+    // console.log(`url ${this.rememberedParams.url} vs ${this.url}`);
+    this.dirty = this.rememberedParams.url !== this.url || this.rememberedParams.js !== this.options.js;
+    this.changeDetectorRef.detectChanges();
   }
 }

@@ -7,6 +7,10 @@ export const config = {
   port: process.env.PORT || 3000,
   env,
   hostname: 'localhost',
+  auth: {
+    enabled: !!process.env.RP_AUTH,
+    apiKeysFile: env === 'dev' ? './api-keys-sample.txt' : '/etc/rss-proxy/api-keys.txt'
+  },
   cache: {
     enabled: process.env.RP_CACHE === 'true' || false,
     lifetimeSec: 60 * 10
